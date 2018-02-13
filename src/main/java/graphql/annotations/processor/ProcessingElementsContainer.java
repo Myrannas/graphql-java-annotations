@@ -1,12 +1,12 @@
 /**
  * Copyright 2016 Yurii Rashkovskii
- *
+ * <p>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -19,6 +19,7 @@ import graphql.annotations.processor.graphQLProcessors.GraphQLInputProcessor;
 import graphql.annotations.processor.graphQLProcessors.GraphQLOutputProcessor;
 import graphql.annotations.processor.typeFunctions.DefaultTypeFunction;
 import graphql.annotations.processor.typeFunctions.TypeFunction;
+import graphql.annotations.processor.util.ReflectionKit;
 import graphql.relay.Relay;
 
 import java.util.HashMap;
@@ -33,22 +34,38 @@ public class ProcessingElementsContainer {
     private Map<String, graphql.schema.GraphQLType> typeRegistry;
     private Map<Class<?>, Set<Class<?>>> extensionsTypeRegistry;
     private Stack<String> processing;
+    private ClassFactory classFactory;
 
-
-    public ProcessingElementsContainer(TypeFunction defaultTypeFunction, Relay relay, Map<String, graphql.schema.GraphQLType> typeRegistry, Map<Class<?>, Set<Class<?>>> extensionsTypeRegistry, Stack<String> processing) {
+    public ProcessingElementsContainer(
+            TypeFunction defaultTypeFunction,
+            Relay relay,
+            Map<String, graphql.schema.GraphQLType> typeRegistry,
+            Map<Class<?>, Set<Class<?>>> extensionsTypeRegistry,
+            Stack<String> processing,
+            ClassFactory classFactory) {
         this.defaultTypeFunction = defaultTypeFunction;
         this.relay = relay;
         this.typeRegistry = typeRegistry;
         this.extensionsTypeRegistry = extensionsTypeRegistry;
         this.processing = processing;
+        this.classFactory = classFactory;
     }
 
     public ProcessingElementsContainer(TypeFunction typeFunction) {
-        this(typeFunction, new Relay(), new HashMap<>(), new HashMap<>(), new Stack<>());
+        this(typeFunction, new Relay(), new HashMap<>(), new HashMap<>(), new Stack<>(), new ReflectionKit());
     }
 
-    public ProcessingElementsContainer(){
-        this(new DefaultTypeFunction(new GraphQLInputProcessor(), new GraphQLOutputProcessor()),new Relay(), new HashMap<>(), new HashMap<>(), new Stack<>());
+
+    public ProcessingElementsContainer() {
+        this(new DefaultTypeFunction(new GraphQLInputProcessor(), new GraphQLOutputProcessor()), new Relay(), new HashMap<>(), new HashMap<>(), new Stack<>(), new ReflectionKit());
+    }
+
+    public ClassFactory getClassFactory() {
+        return classFactory;
+    }
+
+    public void setClassFactory(ClassFactory classFactory) {
+        this.classFactory = classFactory;
     }
 
     public Relay getRelay() {

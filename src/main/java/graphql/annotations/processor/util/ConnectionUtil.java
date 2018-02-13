@@ -16,18 +16,17 @@ package graphql.annotations.processor.util;
 
 import graphql.annotations.connection.ConnectionValidator;
 import graphql.annotations.connection.GraphQLConnection;
+import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.schema.*;
 
 import java.lang.reflect.AccessibleObject;
 import java.util.Arrays;
 import java.util.List;
 
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
-
 public class ConnectionUtil {
     private static final List<Class> TYPES_FOR_CONNECTION = Arrays.asList(GraphQLObjectType.class, GraphQLInterfaceType.class, GraphQLUnionType.class, GraphQLTypeReference.class);
 
-    public static boolean isConnection(AccessibleObject obj, GraphQLType type) {
+    public static boolean isConnection(ProcessingElementsContainer container, AccessibleObject obj, GraphQLType type) {
         if (type instanceof graphql.schema.GraphQLNonNull) {
             type =  ((GraphQLNonNull) type).getWrappedType();
         }
@@ -37,7 +36,7 @@ public class ConnectionUtil {
                 aClass.isInstance(((GraphQLList) actualType).getWrappedType()));
 
         if (isValidGraphQLTypeForConnection) {
-            ConnectionValidator validator = newInstance(obj.getAnnotation(GraphQLConnection.class).validator());
+            ConnectionValidator validator = container.getClassFactory().newInstance(obj.getAnnotation(GraphQLConnection.class).validator());
             validator.validate(obj);
             return true;
         } else {

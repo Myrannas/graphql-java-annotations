@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
 import static graphql.schema.GraphQLFieldDefinition.newFieldDefinition;
 import static graphql.schema.GraphQLInputObjectField.newInputObjectField;
 
@@ -69,7 +68,7 @@ public class GraphQLFieldRetriever {
         builder.name(new MethodNameBuilder(method).build());
         GraphQLOutputType outputType = (GraphQLOutputType) new MethodTypeBuilder(method, typeFunction, container, false).build();
 
-        boolean isConnection = ConnectionUtil.isConnection(method, outputType);
+        boolean isConnection = ConnectionUtil.isConnection(container, method, outputType);
         if (isConnection) {
             outputType = getGraphQLConnection(method, outputType, container.getRelay(), container.getTypeRegistry());
         }
@@ -89,7 +88,7 @@ public class GraphQLFieldRetriever {
         TypeFunction typeFunction = getTypeFunction(field, container);
 
         GraphQLType outputType = typeFunction.buildType(field.getType(), field.getAnnotatedType(), container);
-        boolean isConnection = ConnectionUtil.isConnection(field, outputType);
+        boolean isConnection = ConnectionUtil.isConnection(container, field, outputType);
         if (isConnection) {
             outputType = getGraphQLConnection(field, outputType, container.getRelay(), container.getTypeRegistry());
             builder.argument(container.getRelay().getConnectionFieldArguments());
@@ -139,7 +138,7 @@ public class GraphQLFieldRetriever {
         TypeFunction typeFunction = container.getDefaultTypeFunction();
 
         if (annotation != null) {
-            typeFunction = newInstance(annotation.value());
+            typeFunction = container.getClassFactory().newInstance(annotation.value());
         }
         return typeFunction;
     }
@@ -170,7 +169,7 @@ public class GraphQLFieldRetriever {
         TypeFunction typeFunction = container.getDefaultTypeFunction();
 
         if (annotation != null) {
-            typeFunction = newInstance(annotation.value());
+            typeFunction = container.getClassFactory().newInstance(annotation.value());
         }
         return typeFunction;
     }

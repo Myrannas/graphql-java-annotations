@@ -65,7 +65,7 @@ public class UnionBuilder {
         TypeFunction typeFunction = container.getDefaultTypeFunction();
 
         if (typeAnnotation != null) {
-            typeFunction = ReflectionKit.newInstance(typeAnnotation.value());
+            typeFunction = container.getClassFactory().newInstance(typeAnnotation.value());
         }
 
         TypeFunction finalTypeFunction = typeFunction;

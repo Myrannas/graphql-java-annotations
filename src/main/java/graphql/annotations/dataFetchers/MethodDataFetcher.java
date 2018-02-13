@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static graphql.annotations.processor.util.ReflectionKit.constructNewInstance;
 import static graphql.annotations.processor.util.NamingKit.toGraphqlName;
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
 
 public class MethodDataFetcher<T> implements DataFetcher<T> {
     private final Method method;
@@ -50,9 +48,9 @@ public class MethodDataFetcher<T> implements DataFetcher<T> {
             if (Modifier.isStatic(method.getModifiers())) {
                 obj = null;
             } else if (method.getAnnotation(GraphQLInvokeDetached.class) != null) {
-                obj = newInstance((Class<T>) method.getDeclaringClass());
+                obj = container.getClassFactory().newInstance((Class<T>) method.getDeclaringClass());
             } else if (!method.getDeclaringClass().isInstance(environment.getSource())) {
-                obj = newInstance((Class<T>) method.getDeclaringClass(), environment.getSource());
+                obj = container.getClassFactory().newInstance((Class<T>) method.getDeclaringClass(), environment.getSource());
             } else {
                 obj = environment.getSource();
                 if (obj == null) {
@@ -105,7 +103,7 @@ public class MethodDataFetcher<T> implements DataFetcher<T> {
             for (Constructor<?> constructor : constructors) {
                 Parameter[] parameters = constructor.getParameters();
                 if (parameters.length == 1 && parameters[0].getType().isAssignableFrom(arg.getClass())) {
-                    return constructNewInstance(constructor, arg);
+                    return container.getClassFactory().constructNewInstance(constructor, arg);
                 } else {
                     List<Object> objects = new ArrayList<>();
                     Map map = (Map) arg;
@@ -113,7 +111,7 @@ public class MethodDataFetcher<T> implements DataFetcher<T> {
                         String name = toGraphqlName(parameter.getAnnotation(GraphQLName.class) != null ? parameter.getAnnotation(GraphQLName.class).value() : parameter.getName());
                         objects.add(buildArg(parameter.getParameterizedType(), ((GraphQLInputObjectType) graphQLType).getField(name).getType(), map.get(name)));
                     }
-                    return constructNewInstance(constructor, objects.toArray(new Object[objects.size()]));
+                    return container.getClassFactory().constructNewInstance(constructor, objects.toArray(new Object[objects.size()]));
                 }
             }
             return null;

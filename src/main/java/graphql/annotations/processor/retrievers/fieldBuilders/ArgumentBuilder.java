@@ -29,7 +29,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static graphql.annotations.processor.util.NamingKit.toGraphqlName;
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
 import static graphql.schema.GraphQLArgument.newArgument;
 
 public class ArgumentBuilder implements Builder<List<GraphQLArgument>> {
@@ -70,7 +69,7 @@ public class ArgumentBuilder implements Builder<List<GraphQLArgument>> {
         }
         GraphQLDefaultValue defaultValue = parameter.getAnnotation(GraphQLDefaultValue.class);
         if (defaultValue != null) {
-            argumentBuilder.defaultValue(newInstance(defaultValue.value()).get());
+            argumentBuilder.defaultValue(container.getClassFactory().newInstance(defaultValue.value()).get());
         }
         GraphQLName name = parameter.getAnnotation(GraphQLName.class);
         if (name != null) {

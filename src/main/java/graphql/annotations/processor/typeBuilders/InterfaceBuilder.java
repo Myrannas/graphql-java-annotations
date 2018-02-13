@@ -31,7 +31,6 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
 import static graphql.schema.GraphQLInterfaceType.newInterface;
 /**
  * Copyright 2016 Yurii Rashkovskii
@@ -84,7 +83,7 @@ public class InterfaceBuilder {
         builder.fields(extensionsHandler.getExtensionFields(iface, definedFields,container));
 
         GraphQLTypeResolver typeResolver = iface.getAnnotation(GraphQLTypeResolver.class);
-        builder.typeResolver(newInstance(typeResolver.value()));
+        builder.typeResolver(container.getClassFactory().newInstance(typeResolver.value()));
         return builder;
     }
 }

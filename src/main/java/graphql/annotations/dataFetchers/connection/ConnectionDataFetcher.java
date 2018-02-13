@@ -15,6 +15,7 @@
 package graphql.annotations.dataFetchers.connection;
 
 import graphql.annotations.connection.ConnectionFetcher;
+import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 
@@ -22,14 +23,14 @@ import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static graphql.annotations.processor.util.ReflectionKit.constructNewInstance;
-
 public class ConnectionDataFetcher<T> implements DataFetcher<graphql.relay.Connection<T>> {
+    private final ProcessingElementsContainer container;
     private final DataFetcher<?> actualDataFetcher;
     private final Constructor<ConnectionFetcher<T>> constructor;
 
     @SuppressWarnings("unchecked")
-    public ConnectionDataFetcher(Class<? extends ConnectionFetcher<T>> connection, DataFetcher<?> actualDataFetcher) {
+    public ConnectionDataFetcher(ProcessingElementsContainer container, Class<? extends ConnectionFetcher<T>> connection, DataFetcher<?> actualDataFetcher) {
+        this.container = container;
         this.actualDataFetcher =  actualDataFetcher;
         Optional<Constructor<ConnectionFetcher<T>>> constructor =
                 Arrays.stream(connection.getConstructors()).
@@ -45,7 +46,7 @@ public class ConnectionDataFetcher<T> implements DataFetcher<graphql.relay.Conne
 
     @Override
     public graphql.relay.Connection<T> get(DataFetchingEnvironment environment) {
-        ConnectionFetcher<T> conn = constructNewInstance(constructor, actualDataFetcher);
+        ConnectionFetcher<T> conn = container.getClassFactory().constructNewInstance(constructor, actualDataFetcher);
         return conn.get(environment);
     }
 }

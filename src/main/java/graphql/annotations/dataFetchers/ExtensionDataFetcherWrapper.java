@@ -14,21 +14,22 @@
  */
 package graphql.annotations.dataFetchers;
 
+import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.schema.DataFetcher;
 import graphql.schema.DataFetchingEnvironment;
 import graphql.schema.DataFetchingEnvironmentImpl;
 
 import java.util.Map;
 
-import static graphql.annotations.processor.util.ReflectionKit.newInstance;
-
 public class ExtensionDataFetcherWrapper<T> implements DataFetcher<T>{
 
     private final Class declaringClass;
 
     private final DataFetcher<T> dataFetcher;
+    private ProcessingElementsContainer container;
 
-    public ExtensionDataFetcherWrapper(Class declaringClass, DataFetcher<T> dataFetcher) {
+    public ExtensionDataFetcherWrapper(ProcessingElementsContainer container, Class declaringClass, DataFetcher<T> dataFetcher) {
+        this.container = container;
         this.declaringClass = declaringClass;
         this.dataFetcher = dataFetcher;
     }
@@ -37,7 +38,7 @@ public class ExtensionDataFetcherWrapper<T> implements DataFetcher<T>{
     public T get(DataFetchingEnvironment environment) {
         Object source = environment.getSource();
         if (source != null && (!declaringClass.isInstance(source)) && !(source instanceof Map)) {
-            environment = new DataFetchingEnvironmentImpl(newInstance(declaringClass, source), environment.getArguments(), environment.getContext(),
+            environment = new DataFetchingEnvironmentImpl(container.getClassFactory().newInstance(declaringClass, source), environment.getArguments(), environment.getContext(),
                     environment.getRoot(), environment.getFieldDefinition(), environment.getFields(), environment.getFieldType(), environment.getParentType(), environment.getGraphQLSchema(),
                     environment.getFragmentsByName(), environment.getExecutionId(), environment.getSelectionSet(), environment.getFieldTypeInfo());
         }

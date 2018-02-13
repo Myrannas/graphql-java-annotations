@@ -54,7 +54,7 @@ public class FieldDataFetcherBuilder implements Builder<DataFetcher> {
         GraphQLDataFetcher dataFetcher = field.getAnnotation(GraphQLDataFetcher.class);
         DataFetcher actualDataFetcher = null;
         if (nonNull(dataFetcher)) {
-            actualDataFetcher = dataFetcherConstructor.constructDataFetcher(field.getName(), dataFetcher);
+            actualDataFetcher = dataFetcherConstructor.constructDataFetcher(container, field.getName(), dataFetcher);
         }
 
         if (actualDataFetcher == null) {
@@ -63,7 +63,7 @@ public class FieldDataFetcherBuilder implements Builder<DataFetcher> {
 
 
         if (isConnection) {
-            actualDataFetcher = new ConnectionDataFetcher(field.getAnnotation(GraphQLConnection.class).connection(), actualDataFetcher);
+            actualDataFetcher = new ConnectionDataFetcher(container, field.getAnnotation(GraphQLConnection.class).connection(), actualDataFetcher);
         }
         return actualDataFetcher;
     }
@@ -106,7 +106,7 @@ public class FieldDataFetcherBuilder implements Builder<DataFetcher> {
 
     private DataFetcher wrapExtension(DataFetcher dataFetcher, Field field) {
         if (field.getDeclaringClass().isAnnotationPresent(GraphQLTypeExtension.class)) {
-            return new ExtensionDataFetcherWrapper(field.getDeclaringClass(), dataFetcher);
+            return new ExtensionDataFetcherWrapper(container, field.getDeclaringClass(), dataFetcher);
         }
         return dataFetcher;
     }

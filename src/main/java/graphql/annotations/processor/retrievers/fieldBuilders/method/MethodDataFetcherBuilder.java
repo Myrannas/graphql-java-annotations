@@ -66,7 +66,7 @@ public class MethodDataFetcherBuilder implements Builder<DataFetcher> {
         } else if (dataFetcher == null) {
             actualDataFetcher = new MethodDataFetcher(method, typeFunction, container);
         } else {
-            actualDataFetcher = dataFetcherConstructor.constructDataFetcher(method.getName(), dataFetcher);
+            actualDataFetcher = dataFetcherConstructor.constructDataFetcher(container, method.getName(), dataFetcher);
         }
 
         if (method.isAnnotationPresent(GraphQLRelayMutation.class) && relayFieldDefinition != null) {
@@ -74,7 +74,7 @@ public class MethodDataFetcherBuilder implements Builder<DataFetcher> {
         }
 
         if (isConnection){
-            actualDataFetcher = new ConnectionDataFetcher(method.getAnnotation(GraphQLConnection.class).connection(), actualDataFetcher);
+            actualDataFetcher = new ConnectionDataFetcher(container, method.getAnnotation(GraphQLConnection.class).connection(), actualDataFetcher);
         }
         return actualDataFetcher;
     }
