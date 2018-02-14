@@ -49,6 +49,13 @@ public class ReflectionKit implements ClassFactory {
                     return constructNewInstance(constructor, parameter);
                 }
             }
+
+            try {
+                Constructor<T> defaultConstructor = clazz.getConstructor();
+                return constructNewInstance(defaultConstructor);
+            } catch (NoSuchMethodException e) {
+                return null;
+            }
         }
         return null;
     }

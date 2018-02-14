@@ -14,6 +14,7 @@
  */
 package graphql.annotations.dataFetchers;
 
+import graphql.annotations.annotationTypes.GraphQLSource;
 import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.annotations.processor.typeFunctions.TypeFunction;
 import graphql.execution.batched.Batched;
@@ -21,6 +22,8 @@ import graphql.schema.DataFetchingEnvironment;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
+import java.util.List;
 
 public class BatchedMethodDataFetcher extends MethodDataFetcher {
 
@@ -28,6 +31,14 @@ public class BatchedMethodDataFetcher extends MethodDataFetcher {
     public BatchedMethodDataFetcher(Method method, TypeFunction typeFunction, ProcessingElementsContainer container) {
         super(method,typeFunction, container);
         if (!Modifier.isStatic(method.getModifiers())) {
+            for (Parameter parameter : method.getParameters()) {
+                if (parameter.getAnnotation(GraphQLSource.class) != null) {
+                    if (parameter.getType().isInstance(List.class)) {
+                        return;
+                    }
+                }
+            }
+
             throw new IllegalArgumentException("Batched method should be static");
         }
     }

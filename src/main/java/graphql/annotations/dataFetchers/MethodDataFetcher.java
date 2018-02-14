@@ -14,6 +14,7 @@
  */
 package graphql.annotations.dataFetchers;
 
+import graphql.annotations.annotationTypes.GraphQLSource;
 import graphql.annotations.processor.ProcessingElementsContainer;
 import graphql.annotations.annotationTypes.GraphQLInvokeDetached;
 import graphql.annotations.annotationTypes.GraphQLName;
@@ -78,6 +79,11 @@ public class MethodDataFetcher<T> implements DataFetcher<T> {
             Class<?> paramType = p.getType();
             if (DataFetchingEnvironment.class.isAssignableFrom(paramType)) {
                 result.add(environment);
+                continue;
+            }
+
+            if (p.getAnnotation(GraphQLSource.class) != null) {
+                result.add(environment.getSource());
                 continue;
             }
 
